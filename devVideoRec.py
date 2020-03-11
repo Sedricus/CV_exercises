@@ -8,13 +8,16 @@ import face_recognition
 import cv2
 
 
-# In[4]:
+# In[2]:
 
 
+from imutils.video import VideoStream
+from imutils.video import FPS
+import imutils
+import time
 
 
-
-# In[27]:
+# In[3]:
 
 
 image_1 = face_recognition.load_image_file("/home/serg/Документи/PythonScripts/ComputerVision/Image2Rec_Son.jpg")
@@ -27,13 +30,15 @@ face_encoding_2,
 ]
 
 
-# In[31]:
+# In[8]:
 
 
-video_capture = cv2.VideoCapture("/dev/video0")
+vs = VideoStream(src=0).start()
+time.sleep(2.0)
+fps = FPS().start()
 
 
-# In[32]:
+# In[10]:
 
 
 face_locations = []
@@ -42,12 +47,11 @@ face_names = []
 frame_number = 0
 
 while True:
-    ret, frame = video_capture.read()
+    frame = vs.read()
+    frame = imutils.resize(frame, width=400)
+    
     frame_number += 1
     
-    # Quit when the input video file ends
-    if not ret:
-       break
     
     rgb_frame = frame[:, :, ::-1]
     
@@ -75,7 +79,7 @@ while True:
         
         cv2.rectangle(frame, (left-6, top-6), (right+6, bottom+35), (0, 0, 255), 2)#, cv2.FILLED)
         font = cv2.FONT_HERSHEY_DUPLEX
-        cv2.putText(frame, name, (left + 6, bottom-6), font, 0.5, (255, 255, 255), 1)
+        cv2.putText(frame, name, (left + 6, bottom+30), font, 0.5, (255, 255, 255), 1)
 
         # Write the resulting image to the output video file
         # print("Writing frame {} / {}".format(frame_number, length))
@@ -83,19 +87,17 @@ while True:
     
     if cv2.waitKey(1) & 0xFF == ord('q'):
        break
+    
+    fps.update()
 
 
-# In[33]:
+# In[11]:
 
 
-video_capture.release()
+fps.stop()
+vs.stream.release()
 cv2.destroyAllWindows()
-
-
-# In[ ]:
-
-
-
+vs.stop()
 
 
 # In[ ]:
